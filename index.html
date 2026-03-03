@@ -1,73 +1,612 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>元宵节快乐</title>
-
+    <title>元宵节快乐 - 所愿皆成</title>
     <style>
       body {
+        margin: 0;
         background: #0a0005;
+        overflow: hidden;
         height: 100vh;
+        font-family: "Microsoft YaHei", "SimHei", sans-serif;
+        color: #fff;
       }
       .canvas {
+        display: block;
         width: 100%;
         height: 100%;
         position: fixed;
+        top: 0;
+        left: 0;
         z-index: -1;
-        pointer-events: none;
       }
+
+      /* 主容器 */
       .main {
         width: 100%;
         height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+      }
+
+      /* --- 第一阶段：开始按钮 --- */
+      .start-btn-container {
+        pointer-events: auto;
+        transition: opacity 1s ease, transform 1s ease;
+      }
+      .start-btn-container.fade-out {
+        opacity: 0;
+        transform: scale(1.5);
+        pointer-events: none;
+      }
+      .startButton {
+        position: relative;
+        padding: 15px 40px;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ff9a9e 100%);
+        background-size: 200% 200%;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 50px;
+        cursor: pointer;
+        outline: none;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        box-shadow: 0 0 20px rgba(255, 100, 100, 0.6), 0 0 40px rgba(255, 100, 100, 0.4);
+        animation: gradientMove 3s ease infinite, pulseGlow 2s ease-in-out infinite alternate;
+        letter-spacing: 5px;
+        transition: transform 0.2s;
+      }
+      .startButton:hover { transform: scale(1.05); }
+      .startButton:active { transform: scale(0.95); }
+
+      /* --- 第二阶段：中间卡片 --- */
+      .wish-container {
+        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: translateY(30px);
+        max-width: 90%;
+        width: 500px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        display: none;
+      }
+      .wish-container.fade-in {
+        display: flex;
+        animation: fadeInUp 1.5s forwards;
+      }
+      .wish-container.fade-out-final {
+        transition: opacity 1.5s ease, transform 1.5s ease;
+        opacity: 0;
+        transform: scale(0.8);
+        pointer-events: none;
+      }
+
+      @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* 诗词与输入框样式 */
+      .poem-box {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        padding-bottom: 20px;
+        width: 100%;
+      }
+      .poem-title { font-size: 1.2rem; color: #ffd700; margin-bottom: 10px; letter-spacing: 2px; }
+      .poem-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        font-family: "KaiTi", "STKaiti", serif;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        white-space: pre-line;
+      }
+      .input-group { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+      .wish-input {
+        width: 100%;
+        padding: 15px;
+        font-size: 1rem;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 215, 0, 0.5);
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        outline: none;
+        text-align: center;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        box-sizing: border-box;
+      }
+      .wish-input:focus { border-color: #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+      .wish-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+      .submit-btn {
+        padding: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0a0005;
+        background: #ffd700;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+      }
+      .submit-btn:hover { background: #ffed4a; transform: translateY(-2px); box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+      .submit-btn:disabled { background: #ccc; cursor: default; transform: none; box-shadow: none; }
+
+      /* --- 第三阶段：对联容器 --- */
+      .couplet-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0 10%; /* 左右边距 */
+        box-sizing: border-box;
+        z-index: 90;
+        opacity: 0;
+        transition: opacity 1s ease;
+      }
+      .couplet-container.show {
+        opacity: 1;
+      }
+      .couplet-side {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 60vh; /* 控制对联长度 */
+        margin-top: 10vh;
+      }
+      .char-box {
+        font-size: 3rem;
+        font-family: "KaiTi", "STKaiti", serif;
+        color: #ffeb3b;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
+        margin: 10px 0;
+        opacity: 0;
+        transform: translateY(-50px);
+        /* 动画由JS控制类名添加 */
+      }
+      .char-box.drop {
+        animation: dropChar 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+      @keyframes dropChar {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 横批 (可选，放在顶部中间) */
+      .horizontal-batch {
+        position: absolute;
+        top: 5vh;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        font-family: "KaiTi", "STKaiti", serif;
+        color: #ffd700;
+        letter-spacing: 10px;
+        opacity: 0;
+        transition: opacity 2s ease;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+      }
+      .horizontal-batch.show {
+        opacity: 1;
+      }
+
+      /* 动画关键帧 */
+      @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      @keyframes pulseGlow {
+        from { box-shadow: 0 0 20px rgba(255, 100, 100, 0.6), 0 0 40px rgba(255, 100, 100, 0.4); }
+        to { box-shadow: 0 0 30px rgba(255, 150, 150, 0.9), 0 0 60px rgba(255, 50, 50, 0.6); }
+      }
+
+      /* 移动端适配 */
+      @media (max-width: 600px) {
+        .startButton { font-size: 1.8rem; padding: 12px 30px; }
+        .wish-container { width: 85%; padding: 25px; }
+        .poem-content { font-size: 1rem; }
+        .char-box { font-size: 2rem; margin: 5px 0; }
+        .couplet-container { padding: 0 5%; }
+        .horizontal-batch { font-size: 1.5rem; letter-spacing: 5px; }
       }
     </style>
   </head>
-  <body class="bg">
-    <canvas class="canvas" id="canvas"> </canvas>
-  </body>
-  <script>
-    //星星数量
-    const startCount = 99;
-    //星空画布
-    const canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const paint = canvas.getContext("2d");
-    for (var i = 0; i < startCount; i++) {
-      var color = "white";
-      var half = Math.random() * 2 + 1;
-      paint.beginPath();
-      //随机星星改变样式
-      if (Math.random() < 0.1) {
-        color = "#FFD700";
-        half = 3;
+  <body>
+    <canvas class="canvas" id="canvas"></canvas>
+    
+    <div class="main">
+      <!-- 阶段一：开始按钮 -->
+      <div class="start-btn-container" id="startContainer">
+        <button class="startButton" onclick="startJourney()">元宵节快乐</button>
+      </div>
+
+      <!-- 阶段二：诗词与许愿 -->
+      <div class="wish-container" id="wishContainer">
+        <div class="poem-box">
+          <div class="poem-title">《正月十五夜》</div>
+          <div class="poem-content">
+            火树银花合，星桥铁锁开。
+            暗尘随马去，明月逐人来。
+            游伎皆秾李，行歌尽落梅。
+            金吾不禁夜，玉漏莫相催。
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <input type="text" class="wish-input" id="wishInput" placeholder="我不会偷看的，可以放心写" maxlength="30" autocomplete="off">
+          <button class="submit-btn" id="submitBtn" onclick="submitWish()">许下心愿</button>
+        </div>
+      </div>
+
+      <!-- 阶段三：对联 -->
+      <div class="couplet-container" id="coupletContainer">
+        <div class="horizontal-batch" id="horizontalBatch">元宵喜乐</div>
+        <div class="couplet-side" id="leftCouplet">
+          <!-- 字将由JS生成 -->
+        </div>
+        <div class="couplet-side" id="rightCouplet">
+          <!-- 字将由JS生成 -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const paint = canvas.getContext("2d");
+
+      function setCanvasSize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
       }
-      var left = Math.random() * window.innerWidth;
-      var t = Math.random() * window.innerHeight;
-      paint.arc(left, t, half, 0, Math.PI * 2);
-      console.log(left, t, half);
-      paint.fillStyle = color;
-      paint.fill();
-    }
-    //绘制月亮
-    paint.save();
-paint.beginPath();
+      setCanvasSize();
+      window.onresize = setCanvasSize;
 
-const cx = window.innerWidth - 120;
-const cy = 100;
-const r = 50;
+      // 星星数据
+      const startCount = 120;
+      const stars = [];
+      for (let i = 0; i < startCount; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          size: Math.random() * 2 + 0.5,
+          color: Math.random() < 0.1 ? "#FFD700" : "white",
+          blinkSpeed: 0.001 + Math.random() * 0.002,
+          offset: Math.random() * Math.PI * 2,
+        });
+      }
 
-let g = paint.createRadialGradient(cx, cy, 0, cx, cy, r);
-g.addColorStop(0, "#fff");
-g.addColorStop(1, "#ff0");
+      // 灯笼数据
+      const lanterns = [];
+      const lanternCount = 8;
+      for (let i = 0; i < lanternCount; i++) {
+        lanterns.push({
+          x: (window.innerWidth / (lanternCount + 1)) * (i + 1),
+          y: 20 + Math.sin((i / (lanternCount - 1)) * Math.PI) * 70,
+          radius: 24,
+          height: 68,
+          speed: 0.001 + Math.random() * 0.001,
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
 
-paint.fillStyle = g;
-paint.shadowColor = "rgba(255, 255, 0, 0.8)";
-paint.shadowBlur = 60;
+      function drawMoon(ctx) {
+        ctx.save();
+        const cx = window.innerWidth - 150;
+        const cy = 120;
+        const r = 55;
+        let g = ctx.createRadialGradient(cx - 15, cy - 15, 0, cx, cy, r);
+        g.addColorStop(0, "#fffbe6");
+        g.addColorStop(0.5, "#fff5d0");
+        g.addColorStop(1, "#f5d76e");
+        ctx.shadowColor = "rgba(245, 215, 110, 0.4)";
+        ctx.shadowBlur = 80;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+        ctx.restore();
+      }
 
-paint.arc(cx, cy, r, 0, Math.PI * 2);
-paint.fill();
-paint.restore();
-  </script>
+      function drawLantern(ctx, l) {
+        ctx.save();
+        ctx.translate(l.x, l.y);
+        const swingAngle = Math.sin(Date.now() * l.speed + l.phase) * 0.12;
+        ctx.rotate(swingAngle);
+
+        ctx.beginPath();
+        ctx.moveTo(0, -40);
+        ctx.lineTo(0, 0);
+        ctx.strokeStyle = "#444";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        let grad = ctx.createRadialGradient(0, l.height / 3, 0, 0, l.height / 3, l.height / 2);
+        grad.addColorStop(0, "#ff8800");
+        grad.addColorStop(0.5, "#c0392b");
+        grad.addColorStop(1, "#7b1e1e");
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = "rgba(200, 80, 0, 0.7)";
+        ctx.beginPath();
+        ctx.ellipse(0, l.height / 2, l.radius, l.height / 2, 0, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#d4a017";
+        ctx.fillRect(-l.radius - 2, 0, (l.radius + 2) * 2, 7);
+        ctx.fillRect(-l.radius - 2, l.height, (l.radius + 2) * 2, 7);
+
+        for (let j = -2; j <= 2; j++) {
+          ctx.beginPath();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "#d4a017";
+          ctx.moveTo(j * 4, l.height + 7);
+          const tasselSwing = Math.sin(Date.now() * 0.004 + j) * 4;
+          ctx.lineTo(j * 4 + tasselSwing, l.height + 35);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // --- 交互逻辑 ---
+
+      function startJourney() {
+        const startContainer = document.getElementById('startContainer');
+        const wishContainer = document.getElementById('wishContainer');
+        const wishInput = document.getElementById('wishInput');
+
+        startContainer.classList.add('fade-out');
+
+        setTimeout(() => {
+          startContainer.style.display = 'none';
+          wishContainer.classList.add('fade-in');
+          setTimeout(() => { wishInput.focus(); }, 1000);
+        }, 800);
+      }
+
+      function submitWish() {
+        const input = document.getElementById('wishInput');
+        const wishText = input.value.trim();
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!wishText) {
+          alert("请先写下你的心愿哦！🏮");
+          input.focus();
+          return;
+        }
+
+        // 禁用按钮防止重复点击
+        submitBtn.disabled = true;
+        submitBtn.innerText = "心愿发送中...";
+
+        // 1. 淡出中间卡片
+        const wishContainer = document.getElementById('wishContainer');
+        wishContainer.classList.add('fade-out-final');
+
+        // 2. 等待卡片淡出后，显示对联并放烟花
+        setTimeout(() => {
+          wishContainer.style.display = 'none'; // 彻底隐藏
+          showCoupletsAndFireworks(wishText);
+        }, 1500);
+      }
+
+      function showCoupletsAndFireworks(wishText) {
+        const coupletContainer = document.getElementById('coupletContainer');
+        const leftCouplet = document.getElementById('leftCouplet');
+        const rightCouplet = document.getElementById('rightCouplet');
+        const horizontalBatch = document.getElementById('horizontalBatch');
+
+        // 显示容器
+        coupletContainer.classList.add('show');
+        
+        // 准备文字 (竖排通常从右往左读，但这里左右两边分别是两句)
+        // 左边：所得皆所愿
+        // 右边：所遇皆所求
+        const leftText = "所得皆所愿";
+        const rightText = "所遇皆所求";
+
+        // 生成字符DOM
+        const createChars = (text, container) => {
+          container.innerHTML = '';
+          for (let char of text) {
+            const span = document.createElement('div');
+            span.className = 'char-box';
+            span.textContent = char;
+            container.appendChild(span);
+          }
+        };
+
+        createChars(leftText, leftCouplet);
+        createChars(rightText, rightCouplet);
+
+        // 横批稍后显示
+        setTimeout(() => {
+          horizontalBatch.classList.add('show');
+        }, 500);
+
+        // 动画：逐字落下
+        const animateChars = (container, delayStart) => {
+          const chars = container.querySelectorAll('.char-box');
+          chars.forEach((char, index) => {
+            setTimeout(() => {
+              char.classList.add('drop');
+              // 每个字落下时触发一个小烟花
+              launchSingleFirework(window.innerWidth * (container.id === 'leftCouplet' ? 0.2 : 0.8), window.innerHeight * 0.2);
+            }, delayStart + index * 300); // 每个字间隔300ms
+          });
+        };
+
+        animateChars(leftCouplet, 500);
+        animateChars(rightCouplet, 500);
+
+        // 启动盛大烟花秀 (从底部)
+        setTimeout(() => {
+          startGrandFireworks();
+          // 最后弹窗提示（可选，为了不打断视觉，可以省略或延迟）
+          // setTimeout(() => alert(`✨ 心愿 "${wishText}" 已送达星空！\n愿你今年心想事成！`), 2000);
+        }, 2000);
+      }
+
+      // --- 烟花系统 (底部发射) ---
+      let particles = [];
+      let fireworks = [];
+
+      // 单个小烟花 (配合文字掉落)
+      function launchSingleFirework(x, y) {
+        // 这里做一个简单的爆炸效果，不需要发射过程，直接在指定位置爆炸
+        for(let i=0; i<30; i++) {
+          particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            life: 60 + Math.random() * 20,
+            color: `hsl(${Math.random()*60 + 40}, 100%, 60%)`, // 金色/黄色系
+            size: Math.random() * 2 + 1,
+            gravity: 0.05
+          });
+        }
+      }
+
+      // 盛大烟花秀 (从底部发射)
+      function startGrandFireworks() {
+        // 每隔一段时间发射一个
+        const interval = setInterval(() => {
+          if (!fireworksActive) {
+            clearInterval(interval);
+            return;
+          }
+          const x = Math.random() * window.innerWidth;
+          const targetY = Math.random() * (window.innerHeight * 0.6) + window.innerHeight * 0.1; // 爆炸高度在屏幕中上部
+          fireworks.push({
+            x: x,
+            y: window.innerHeight,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -(Math.random() * 5 + 10), // 向上速度
+            targetY: targetY,
+            color: `hsl(${Math.random()*360}, 100%, 50%)`,
+            exploded: false
+          });
+        }, 300); // 每300ms发射一个
+
+        // 运行30秒后停止自动发射，但已有的粒子会继续运动
+        setTimeout(() => {
+          fireworksActive = false;
+        }, 30000);
+      }
+
+      let fireworksActive = true;
+
+      function updateAndDrawParticles() {
+        // 更新和绘制发射中的烟花
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+          let fw = fireworks[i];
+          fw.x += fw.vx;
+          fw.y += fw.vy;
+          fw.vy += 0.15; // 重力
+
+          // 绘制上升轨迹
+          paint.globalAlpha = 0.8;
+          paint.fillStyle = fw.color;
+          paint.beginPath();
+          paint.arc(fw.x, fw.y, 3, 0, Math.PI*2);
+          paint.fill();
+
+          // 到达目标高度或速度变慢时爆炸
+          if (fw.y <= fw.targetY || fw.vy >= -1) {
+            fw.exploded = true;
+            // 产生爆炸粒子
+            for(let k=0; k<80; k++) {
+              particles.push({
+                x: fw.x,
+                y: fw.y,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 0.5) * 12,
+                life: 100 + Math.random() * 50,
+                color: fw.color,
+                size: Math.random() * 3 + 1,
+                gravity: 0.1
+              });
+            }
+            fireworks.splice(i, 1);
+          }
+        }
+
+        // 更新和绘制爆炸粒子
+        for(let i = particles.length - 1; i >= 0; i--) {
+          let p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity; 
+          p.life--;
+          p.size *= 0.96;
+
+          paint.globalAlpha = p.life / 100;
+          paint.fillStyle = p.color;
+          paint.beginPath();
+          paint.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          paint.fill();
+
+          if(p.life <= 0 || p.size < 0.5) {
+            particles.splice(i, 1);
+          }
+        }
+        paint.globalAlpha = 1.0;
+      }
+
+      // 主动画循环
+      function animate() {
+        paint.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 画星星
+        stars.forEach((s) => {
+          const opacity = 0.3 + Math.abs(Math.sin(Date.now() * s.blinkSpeed + s.offset)) * 0.7;
+          paint.globalAlpha = opacity;
+          paint.beginPath();
+          paint.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          paint.fillStyle = s.color;
+          paint.fill();
+        });
+        paint.globalAlpha = 1.0;
+
+        drawMoon(paint);
+
+        lanterns.forEach((l) => {
+          drawLantern(paint, l);
+        });
+
+        updateAndDrawParticles();
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    </script>
+  </body>
 </html>
