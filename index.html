@@ -1,20 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>元宵节快乐</title>
 
     <style>
-        body{
-            background: black;
-        }
+      body {
+        background: #0a0005;
+        height: 100vh;
+      }
+      .canvas {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: -1;
+        pointer-events: none;
+      }
+      .main {
+        width: 100%;
+        height: 100%;
+      }
     </style>
-</head>
-<body class="bg">
-    <div>
-        <button>元宵节快乐</button>
-    </div>
-    
-</body>
+  </head>
+  <body class="bg">
+    <canvas class="canvas" id="canvas"> </canvas>
+  </body>
+  <script>
+    //星星数量
+    const startCount = 99;
+    //星空画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const paint = canvas.getContext("2d");
+    for (var i = 0; i < startCount; i++) {
+      var color = "white";
+      var half = Math.random() * 2 + 1;
+      paint.beginPath();
+      //随机星星改变样式
+      if (Math.random() < 0.1) {
+        color = "#FFD700";
+        half = 3;
+      }
+      var left = Math.random() * window.innerWidth;
+      var t = Math.random() * window.innerHeight;
+      paint.arc(left, t, half, 0, Math.PI * 2);
+      console.log(left, t, half);
+      paint.fillStyle = color;
+      paint.fill();
+    }
+    //绘制月亮
+    paint.save();
+paint.beginPath();
+
+const cx = window.innerWidth - 120;
+const cy = 100;
+const r = 50;
+
+let g = paint.createRadialGradient(cx, cy, 0, cx, cy, r);
+g.addColorStop(0, "#fff");
+g.addColorStop(1, "#ff0");
+
+paint.fillStyle = g;
+paint.shadowColor = "rgba(255, 255, 0, 0.8)";
+paint.shadowBlur = 60;
+
+paint.arc(cx, cy, r, 0, Math.PI * 2);
+paint.fill();
+paint.restore();
+  </script>
 </html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>元宵节快乐</title>
+
+    <style>
+      body {
+        background: black;
+      }
+      .canvas {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: -1;
+        pointer-events: "none";
+      }
+    </style>
+  </head>
+  <body class="bg">
+    <canvas class="canvas" id="canvas"> </canvas>
+  </body>
+  <script>
+    //星星数量
+    const startCount = 99;
+    //星空画布
+    const canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const paint = canvas.getContext("2d");
+    for (var i = 0; i < startCount; i++) {
+      paint.beginPath();
+      var half = Math.random() * 2;
+      var left = Math.random() * window.innerWidth;
+      var top = Math.random() * window.innerHeight;
+      paint.arc(left - 3 * half, top - 3 * half, half, 0, Math.PI * 2);
+      paint.fillStyle = "white";
+      paint.fill();
+    }
+  </script>
+</html>
